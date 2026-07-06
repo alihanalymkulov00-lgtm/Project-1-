@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для тебя ✨</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ffe5ec, #ffc2d1);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Контейнер для 3D переворота */
+        .card-container {
+            width: 350px;
+            height: 450px;
+            perspective: 1000px;
+        }
+
+        /* Сама карточка */
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Класс для переворота */
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        /* Общие стили для сторон карточки */
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Лицевая сторона (Экран 1) */
+        .card-front {
+            background-color: #fff;
+        }
+
+        /* Обратная сторона (Экран 2) */
+        .card-back {
+            background-color: #fff;
+            transform: rotateY(180deg);
+        }
+
+        h2 {
+            color: #ff4d6d;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        /* Стили кнопок ответов */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .answer-btn {
+            background-color: #ff758f;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 10px rgba(255, 117, 143, 0.3);
+        }
+
+        .answer-btn:active {
+            transform: scale(0.95);
+            background-color: #ff4d6d;
+        }
+
+        /* Кнопка "Дальше" */
+        .next-btn {
+            background: none;
+            border: 2px solid #ff4d6d;
+            color: #ff4d6d;
+            padding: 10px 30px;
+            font-size: 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .next-btn:hover {
+            background-color: #ff4d6d;
+            color: white;
+        }
+
+        /* Стили для вопросов на 2-й стороне */
+        .questions-list {
+            width: 100%;
+            text-align: left;
+        }
+
+        .q-item {
+            margin-bottom: 20px;
+        }
+
+        .q-item p {
+            margin: 0 0 8px 0;
+            color: #495057;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .q-item input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .q-item input:focus {
+            border-color: #ff758f;
+            box-shadow: 0 0 5px rgba(255, 117, 143, 0.5);
+        }
+
+        .submit-btn {
+            background-color: #38b000;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card-container">
+        <div class="card" id="card">
+            
+            <!-- ЛИЦЕВАЯ СТОРОНА: Как дела? -->
+            <div class="card-face card-front">
+                <h2>Как дела? 😊</h2>
+                
+                <div class="btn-group">
+                    <button class="answer-btn" onclick="showAlert('Рад это слышать! ❤️')">Отлично</button>
+                    <button class="answer-btn" onclick="showAlert('Ничего, сейчас поднимем настроение! 😉')">Пойдет</button>
+                </div>
+
+                <button class="next-btn" onclick="flipCard()">Дальше →</button>
+            </div>
+
+            <!-- ОБРАТНАЯ СТОРОНА: Вопросы -->
+            <div class="card-face card-back">
+                <h2>Пара вопросов 🤔</h2>
+                
+                <div class="questions-list">
+                    <div class="q-item">
+                        <p>1. Твое любимое блюдо?</p>
+                        <input type="text" placeholder="Напиши тут...">
+                    </div>
+                    <div class="q-item">
+                        <p>2. Какой фильм посмотрим?</p>
+                        <input type="text" placeholder="Напиши название...">
+                    </div>
+                    <div class="q-item">
+                        <p>3. Куда бы ты хотела сходить?</p>
+                        <input type="text" placeholder="Твое любимое место... ">
+                    </div>
+                </div>
+
+                <button class="submit-btn" onclick="finish()">Отправить</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Функция переворота карточки
+        function flipCard() {
+            document.getElementById('card').classList.add('flipped');
+        }
+
+        // Всплывающее уведомление при клике на "Отлично" или "Пойдет"
+        function showAlert(message) {
+            alert(message);
+        }
+
+        // Финал при заполнении вопросов
+        function finish() {
+            alert('Спасибо за ответы! Код сохранен ✨');
+        }
+    </script>
+
+</body>
+</html>
